@@ -77,7 +77,9 @@
 	<div id="photoWrapper">
 		{#if imgSrc}
 			{#if loading}
-				<Spinner show="{loading}" />
+				<div transition:fade="{{ duration: 333 }}">
+					<Spinner show="{loading}" />
+				</div>
 			{/if}
 			{#if finalSrc}
 				<img transition:fade="{{ duration: 333 }}" src="{finalSrc}" id="finalResult" alt="Result" />

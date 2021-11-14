@@ -1,11 +1,9 @@
 <script>
-    import { fade } from 'svelte/transition';
-
     export let show = false;
 </script>
 
 {#if show}
-    <div class="lds-spinner" transition:fade="{{ duration: 333 }}">
+    <div class="lds-spinner">
         <div></div>
         <div></div>
         <div></div>
@@ -23,7 +21,7 @@
 
 <style>
     .lds-spinner {
-        color: #333;
+        color: #fff;
         display: inline-block;
         position: relative;
         width: 80px;
