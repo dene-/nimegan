@@ -1,12 +1,16 @@
 <script lang="ts">
+	import { SvelteToast, toast } from '@zerodevx/svelte-toast';
 	import Blitz from 'blitz-resize';
 	import { fade } from 'svelte/transition';
-	import axios from 'axios';
+
+	// Components
+	import spinner from './components/spinner.svelte';
 
 	let imgSrc = '';
 	let finalSrc = '';
 	let resizedImg;
 	let files: FileList;
+	let loading = false;
 
 	$: if (files) {
 		let reader = new FileReader();
@@ -16,7 +20,7 @@
 			imgSrc = reader.result as string;
 
 			const bAwait = Blitz.create();
-			const maxSize = 1920;
+			const maxSize = 1080;
 			try {
 				let output = await bAwait({
 					source: reader.result,
@@ -35,14 +39,16 @@
 	}
 
 	function processPhoto() {
-		if (!resizedImg) return;
+		if (!resizedImg || loading) return;
 
 		let photoBlob = resizedImg;
 
 		let formData = new FormData();
 		formData.append('file', photoBlob, 'image.jpg');
 
-		fetch('http://localhost:5000/', {
+		loading = true;
+
+		fetch('http://terminaldogma.servebeer.com:1024', {
 			method: 'post',
 			body: formData,
 			mode: 'cors',
@@ -51,9 +57,13 @@
 			.then((blob) => {
 				let url = URL.createObjectURL(blob);
 				finalSrc = url;
+				loading = false;
 			})
-			.catch(function (response) {
+			.catch((response) => {
 				console.log(response);
+				toast.push(response.error ? response.error : 'Error! D:');
+				loading = false;
+				finalSrc = resizedImg = imgSrc = undefined;
 			});
 	}
 </script>
@@ -64,21 +74,21 @@
 
 <main>
 	<input type="file" accept="image/*" id="photoInput" name="photoInput" bind:files />
-	<div id="photoWrapper">
+	<div id="photoWrapper" class:blur="{loading}">
 		{#if imgSrc}
-			{#if finalSrc}
-				<img
-					transition:fade={{ duration: 333 }}
-					src={finalSrc}
-					id="finalResult"
-					alt="Result"
-				/>
+			{#if loading}
+				<spinner show="{loading}"></spinner>
 			{/if}
-			<img transition:fade={{ duration: 333 }} src={imgSrc} id="imageResult" alt="Result" />
+			{#if finalSrc}
+				<img transition:fade="{{ duration: 333 }}" src="{finalSrc}" id="finalResult" alt="Result" />
+			{/if}
+			<img transition:fade="{{ duration: 333 }}" src="{imgSrc}" id="imageResult" alt="Result" />
 		{:else}
 			<button
 				id="selectPhotoButton"
-				on:click={() => document.getElementById('photoInput').click()}
+				on:click="{() => {
+					document.getElementById('photoInput').click();
+				}}"
 			>
 				Select Photo
 			</button>
@@ -86,45 +96,33 @@
 	</div>
 </main>
 
+<SvelteToast />
+
 {#if imgSrc}
-	<div id="actionButtons">
+	<div id="actionButtons" class:gray="{loading}">
 		<div id="buttonsWrapper">
-			<div class="actionButton" on:click={processPhoto}>
-				<svg
-					style="width: 30px; height: 30px"
-					xmlns="http://www.w3.org/2000/svg"
-					width="24"
-					height="24"
-					fill="green"
-					viewBox="0 0 24 24"
-					><path
-						d="M20.285 2l-11.285 11.567-5.286-5.011-3.714 3.716 9 8.728 15-15.285z"
-					/></svg
-				>
+			<div class="actionButton" on:click="{processPhoto}">
+				<svg style="width: 30px; height: 30px" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="green" viewBox="0 0 24 24"><path d="M20.285 2l-11.285 11.567-5.286-5.011-3.714 3.716 9 8.728 15-15.285z"></path> </svg>
 			</div>
 			<div
 				class="actionButton"
-				on:click={() => {
-					imgSrc = undefined;
-					finalSrc = undefined;
-				}}
+				on:click="{() => {
+					if (!loading) {
+						imgSrc = undefined;
+						finalSrc = undefined;
+					}
+				}}"
 			>
-				<svg
-					xmlns="http://www.w3.org/2000/svg"
-					width="24"
-					height="24"
-					fill="red"
-					viewBox="0 0 24 24"
-					><path
-						d="M24 20.188l-8.315-8.209 8.2-8.282-3.697-3.697-8.212 8.318-8.31-8.203-3.666 3.666 8.321 8.24-8.206 8.313 3.666 3.666 8.237-8.318 8.285 8.203z"
-					/></svg
-				>
+				<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="red" viewBox="0 0 24 24"><path d="M24 20.188l-8.315-8.209 8.2-8.282-3.697-3.697-8.212 8.318-8.31-8.203-3.666 3.666 8.321 8.24-8.206 8.313 3.666 3.666 8.237-8.318 8.285 8.203z"></path> </svg>
 			</div>
 		</div>
 	</div>
 {/if}
 
 <style>
+	:root {
+		--toastBackground: rgb(65, 65, 65);
+	}
 	main {
 		max-width: 100%;
 		height: 100%;
@@ -179,6 +177,8 @@
 		display: flex;
 		justify-content: center;
 		align-items: center;
+
+		transition: all 333ms linear;
 	}
 
 	#selectPhotoButton {
@@ -192,9 +192,15 @@
 		height: 150px;
 		border-radius: 100px;
 
-		box-shadow: 0 1px 2px rgba(0, 0, 0, 0.07), 0 2px 4px rgba(0, 0, 0, 0.07),
-			0 4px 8px rgba(0, 0, 0, 0.07), 0 8px 16px rgba(0, 0, 0, 0.07),
-			0 16px 32px rgba(0, 0, 0, 0.07), 0 32px 64px rgba(0, 0, 0, 0.07);
+		box-shadow: 0 1px 2px rgba(0, 0, 0, 0.07), 0 2px 4px rgba(0, 0, 0, 0.07), 0 4px 8px rgba(0, 0, 0, 0.07), 0 8px 16px rgba(0, 0, 0, 0.07), 0 16px 32px rgba(0, 0, 0, 0.07), 0 32px 64px rgba(0, 0, 0, 0.07);
+	}
+
+	.gray {
+		filter: grayscale(100%);
+	}
+
+	.blur {
+		filter: blur(5px);
 	}
 
 	#actionButtons {
@@ -206,8 +212,10 @@
 		justify-content: center;
 		flex-direction: row;
 
-		padding: 15px;
+		padding: 15px 0;
 		box-sizing: content-box;
+
+		transition: all 333ms linear;
 	}
 
 	#buttonsWrapper {
