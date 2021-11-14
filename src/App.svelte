@@ -63,7 +63,7 @@
 				console.log(response);
 				toast.push(response.error ? response.error : 'Error! D:');
 				loading = false;
-				finalSrc = resizedImg = imgSrc = undefined;
+				finalSrc = resizedImg = imgSrc = files = undefined;
 			});
 	}
 </script>
