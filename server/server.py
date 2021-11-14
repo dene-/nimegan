@@ -14,7 +14,7 @@ import numpy as np
 import random
 import os
 
-from utils import *
+from Models import *
 
 ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg'}
 
@@ -46,21 +46,22 @@ def waifu2x(
         img: Image.Image
     ) -> Image.Image:
 
-        model = CARN_V2(color_channels=3, mid_channels=64, conv=nn.Conv2d,
+        model_cran_v2 = CARN_V2(color_channels=3, mid_channels=64, conv=nn.Conv2d,
                         single_conv_size=3, single_conv_group=1,
                         scale=2, activation=nn.LeakyReLU(0.1),
                         SEBlock=True, repeat_blocks=3, atrous=(1, 1, 1))
                         
-        model = network_to_half(model)
+        model_cran_v2 = network_to_half(model_cran_v2)
 
-        model.load_state_dict(torch.load('./CARN_model_checkpoint.pt', 'cpu'))
+        model_cran_v2.load_state_dict(torch.load("./CARN_model_checkpoint.pt", 'cpu'))
+        # if use GPU, then comment out the next line so it can use fp16. 
+        model_cran_v2 = model_cran_v2.float() 
 
-        model = model.float()
-
+        # origin
         with torch.no_grad():
-            input = to_tensor(img).unsqueeze(0) * 2 - 1
-            output = model(input.to(device)).cpu()[0]
-            output = (output * 0.5 + 0.5).clip(0, 1)
+                input = to_tensor(img).unsqueeze(0)
+                output = model_cran_v2(input.to(device)).cpu()[0]
+                output = output.clip(0, 1)
 
         return to_pil_image(output)
 
@@ -85,9 +86,9 @@ def process_image():
 
             img = Image.open(BytesIO(file.read())).convert("RGB")
 
-            img.save(os.path.join('./uploads', str(random.randint(0, 20000)) + '_' + filename))
+            #img.save(os.path.join('./uploads', str(random.randint(0, 20000)) + '_' + filename))
 
-            out = waifu2x(img)
+            out = face2paint(model, img)
 
             buffer_out = BytesIO()
             format = mimetype.split("/")[1]
