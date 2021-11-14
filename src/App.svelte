@@ -4,13 +4,13 @@
 	import { fade } from 'svelte/transition';
 
 	// Components
-	import spinner from './components/spinner.svelte';
+	import Spinner from './components/spinner.svelte';
 
 	let imgSrc = '';
 	let finalSrc = '';
 	let resizedImg;
 	let files: FileList;
-	let loading = false;
+	let loading: boolean = false;
 
 	$: if (files) {
 		let reader = new FileReader();
@@ -77,7 +77,7 @@
 	<div id="photoWrapper" class:blur="{loading}">
 		{#if imgSrc}
 			{#if loading}
-				<spinner show="{loading}"></spinner>
+				<Spinner show="{loading}" />
 			{/if}
 			{#if finalSrc}
 				<img transition:fade="{{ duration: 333 }}" src="{finalSrc}" id="finalResult" alt="Result" />
