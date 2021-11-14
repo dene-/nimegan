@@ -82,9 +82,13 @@
 				</div>
 			{/if}
 			{#if finalSrc}
-				<img transition:fade="{{ duration: 333 }}" src="{finalSrc}" id="finalResult" alt="Result" />
+				<div id="finalResult" class="imageWrapper" transition:fade="{{ duration: 333 }}">
+					<img src="{finalSrc}" alt="Result" />
+				</div>
 			{/if}
-			<img transition:fade="{{ duration: 333 }}" src="{imgSrc}" id="imageResult" alt="Result" class:blur="{loading}" />
+			<div class="imageWrapper" transition:fade="{{ duration: 333 }}">
+				<img src="{imgSrc}" id="imageResult" alt="Result" class:blur="{loading}" />
+			</div>
 		{:else}
 			<button
 				id="selectPhotoButton"
@@ -135,11 +139,36 @@
 		flex-direction: column;
 	}
 
-	h1 {
-		color: #ff3e00;
-		text-transform: uppercase;
-		font-size: 4em;
-		font-weight: 100;
+	#photoWrapper {
+		flex-grow: 1;
+		display: flex;
+		justify-content: center;
+		align-items: center;
+
+		transition: all 333ms linear;
+	}
+
+	#finalResult.imageWrapper {
+		z-index: 2;
+	}
+
+	.imageWrapper {
+		overflow: hidden;
+		position: absolute;
+
+		margin: 15px;
+
+		border-radius: 20px;
+
+		box-shadow: 0 1px 2px rgba(0, 0, 0, 0.07), 0 2px 4px rgba(0, 0, 0, 0.07), 0 4px 8px rgba(0, 0, 0, 0.07), 0 8px 16px rgba(0, 0, 0, 0.07), 0 16px 32px rgba(0, 0, 0, 0.07), 0 32px 64px rgba(0, 0, 0, 0.07);
+	}
+
+	.imageWrapper img {
+		display: block;
+		max-width: 100%;
+		max-height: 100%;
+
+		border-radius: 20px;
 	}
 
 	header {
@@ -161,26 +190,8 @@
 		display: none;
 	}
 
-	#imageResult,
-	#finalResult {
-		position: absolute;
-		max-width: 100%;
-		max-height: 100%;
-		border-radius: 40px;
-		padding: 15px;
-	}
-
 	#finalResult {
 		z-index: 2;
-	}
-
-	#photoWrapper {
-		flex-grow: 1;
-		display: flex;
-		justify-content: center;
-		align-items: center;
-
-		transition: all 333ms linear;
 	}
 
 	#selectPhotoButton {
@@ -235,15 +246,17 @@
 		display: flex;
 		justify-content: center;
 		align-items: center;
+
+		box-shadow: 0 1px 2px rgba(0, 0, 0, 0.07), 0 2px 4px rgba(0, 0, 0, 0.07), 0 4px 8px rgba(0, 0, 0, 0.07), 0 8px 16px rgba(0, 0, 0, 0.07), 0 16px 32px rgba(0, 0, 0, 0.07), 0 32px 64px rgba(0, 0, 0, 0.07);
 	}
 
 	.actionButton:first-of-type {
 		margin-right: 10px;
 	}
 
-	@media (min-width: 640px) {
+	@media only screen and (min-width: 768px) {
 		main {
-			max-width: none;
+			max-width: 900px;
 		}
 	}
 </style>
