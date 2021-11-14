@@ -23,11 +23,13 @@
 
 <style>
     .lds-spinner {
-        color: official;
+        color: #333;
         display: inline-block;
         position: relative;
         width: 80px;
         height: 80px;
+
+        z-index: 3;
     }
 
     .lds-spinner div {

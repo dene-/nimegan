@@ -74,7 +74,7 @@
 
 <main>
 	<input type="file" accept="image/*" id="photoInput" name="photoInput" bind:files />
-	<div id="photoWrapper" class:blur="{loading}">
+	<div id="photoWrapper">
 		{#if imgSrc}
 			{#if loading}
 				<Spinner show="{loading}" />
@@ -82,7 +82,7 @@
 			{#if finalSrc}
 				<img transition:fade="{{ duration: 333 }}" src="{finalSrc}" id="finalResult" alt="Result" />
 			{/if}
-			<img transition:fade="{{ duration: 333 }}" src="{imgSrc}" id="imageResult" alt="Result" />
+			<img transition:fade="{{ duration: 333 }}" src="{imgSrc}" id="imageResult" alt="Result" class:blur="{loading}" />
 		{:else}
 			<button
 				id="selectPhotoButton"
